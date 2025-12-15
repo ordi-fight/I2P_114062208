@@ -1,0 +1,173 @@
+{
+  "map": [
+    {
+      "path": "map.tmx",
+      "teleport": [
+        {
+          "x": 24,
+          "y": 23,
+          "destination": "gym.tmx"
+        },
+        {
+          "x": 16,
+          "y": 28,
+          "destination": "beach_map.tmx"
+        }
+      ],
+      "player": {
+        "x": 24.0,
+        "y": 30.0
+      },
+      "enemy_trainers": [
+        {
+          "x": 24.0,
+          "y": 29.0,
+          "classification": "stationary",
+          "facing": "DOWN",
+          "max_tiles": 2
+        },
+        {
+          "x": 54.0,
+          "y": 16.0,
+          "classification": "stationary",
+          "facing": "UP",
+          "max_tiles": 2
+        },
+        {
+          "x": 31.0,
+          "y": 31.0,
+          "classification": "stationary",
+          "facing": "UP",
+          "max_tiles": 2
+        }
+      ],
+      "npcs": [
+        {
+          "x": 12.0,
+          "y": 30.0,
+          "facing": "RIGHT",
+          "dialogue": "Welcome to the town!"
+        }
+      ]
+    },
+    {
+      "path": "beach_map.tmx",
+      "teleport": [
+        {
+          "x": 20,
+          "y": 6,
+          "destination": "map.tmx"
+        },
+        {
+          "x": 19,
+          "y": 6,
+          "destination": "map.tmx"
+        },
+        {
+          "x": 21,
+          "y": 6,
+          "destination": "map.tmx"
+        }
+      ],
+      "player": {
+        "x": 19.0,
+        "y": 5.0
+      },
+      "enemy_trainers": [],
+      "npcs": []
+    },
+    {
+      "path": "gym.tmx",
+      "teleport": [
+        {
+          "x": 11,
+          "y": 14,
+          "destination": "map.tmx"
+        },
+        {
+          "x": 12,
+          "y": 14,
+          "destination": "map.tmx"
+        },
+        {
+          "x": 13,
+          "y": 14,
+          "destination": "map.tmx"
+        }
+      ],
+      "player": {
+        "x": 12.0,
+        "y": 12.0
+      },
+      "enemy_trainers": [],
+      "npcs": []
+    }
+  ],
+  "current_map": "map.tmx",
+  "player": {
+    "x": 24.08125000000003,
+    "y": 30.0
+  },
+  "bag": {
+    "monsters": [
+      {
+        "name": "Blastoise",
+        "hp": 20,
+        "max_hp": 180,
+        "attack": 10,
+        "defense": 5,
+        "level": 32,
+        "element": "water",
+        "sprite_path": "menu_sprites/menusprite3.png"
+      },
+      {
+        "name": "Gengar",
+        "hp": 10,
+        "max_hp": 140,
+        "attack": 10,
+        "defense": 30,
+        "level": 28,
+        "element": "fire",
+        "sprite_path": "menu_sprites/menusprite5.png",
+        "hp/ratio": 0.07142857142857142
+      }
+    ],
+    "items": [
+      {
+        "name": "Potion",
+        "count": 26,
+        "tag": 3,
+        "sprite_path": "ingame_ui/potion.png"
+      },
+      {
+        "name": "Coins",
+        "count": 18,
+        "sprite_path": "ingame_ui/coin.png"
+      },
+      {
+        "name": "Pokeball",
+        "count": 4,
+        "tag": 3,
+        "sprite_path": "ingame_ui/ball.png"
+      },
+      {
+        "name": "defence_buff",
+        "count": 17,
+        "tag": 3,
+        "sprite_path": "ingame_ui/options2.png"
+      },
+      {
+        "name": "attack_buff",
+        "count": 4,
+        "tag": 5,
+        "sprite_path": "ingame_ui/options8.png"
+      },
+      {
+        "name": "heal_buff",
+        "count": 4,
+        "tag": 6,
+        "sprite_path": "ingame_ui/options5.png"
+      }
+    ]
+  }
+}
