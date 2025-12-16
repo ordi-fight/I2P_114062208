@@ -10,6 +10,7 @@ from src.scenes.setting_scene import SettingScene
 from src.scenes.battle_scene import BattleScene
 from src.scenes.catch_scene import CatchScene
 from src.scenes.buy_scene import BuyScene
+from src.scenes.evolution_scene import EvolutionScene
 class Engine:
 
     screen: pg.Surface
@@ -34,6 +35,7 @@ class Engine:
         scene_manager.register_scene("battle", BattleScene())
         scene_manager.register_scene("Catch", CatchScene())
         scene_manager.register_scene("buy",BuyScene())
+        scene_manager.register_scene("evolution",EvolutionScene())
         scene_manager.change_scene("menu")
         
 

@@ -1,6 +1,7 @@
 import pygame as pg
 import threading
 import time
+import math
 
 from src.scenes.scene import Scene
 from src.core import GameManager, OnlineManager
@@ -74,13 +75,20 @@ class GameScene(Scene):
         self.move_index = 0
         self.timer = 0
         self.done = False
+        self.is_starburst_active = False
+        self.starburst_timer = 0.0
+        self.starburst_duration = 0.8 
+        self.num_rays = 6
+        self.starburst_color = (0, 0, 0)
       
     @override
     def enter(self) -> None:
         sound_manager.play_bgm("RBY 103 Pallet Town.ogg")
         if self.online_manager:
             self.online_manager.enter()
-        
+        self.monster_collection = self.evolve()
+        if self.monster_collection:
+            self.trigger_starburst()
     @override
     def exit(self) -> None:
         if self.online_manager:
@@ -90,7 +98,13 @@ class GameScene(Scene):
     def update(self, dt: float):
         self.gym_button.update(dt)
         self.battle_button.update(dt)
-
+        # animation for change scene
+        if self.is_starburst_active:
+            self.starburst_timer += dt
+            if self.starburst_timer >= self.starburst_duration:
+                self.is_starburst_active = False
+                self.starburst_timer = 0.0
+                scene_manager.change_scene("evolution")
         # Check if there is assigned next scene
         self.game_manager.try_switch_map()
         
@@ -173,7 +187,10 @@ class GameScene(Scene):
 
         self.is_go_to_battle = True
         self.start_navigation(self.DESTINATIONS["battle"])
-
+    def trigger_starburst(self):
+       
+        self.is_starburst_active = True
+        self.starburst_timer = 0.0
     def reset_minimap(self) -> None:
         """當地圖切換時，清除舊的 minimap 表面，強制重新渲染新地圖。"""
         self.minimap_surface = None
@@ -275,7 +292,8 @@ class GameScene(Scene):
         self.battle_button.draw(screen)
         pg.draw.circle(screen,(255, 100, 0) , ( GameSettings.SCREEN_WIDTH - 360, 45), 25)
         scene_manager.write(35,"battle",screen,(0,0,0),( GameSettings.SCREEN_WIDTH - 400, 35))
-
+        if self.is_starburst_active:
+            self.draw_starburst_transition(screen)
     def draw_minimap(self, screen: pg.Surface) -> None:
         if self.game_manager.player is None:
             return
@@ -370,6 +388,89 @@ class GameScene(Scene):
             color = (0, 200, 255) if i < len(self.current_path) - 1 else (255, 100, 0) # 終點用橘色
             radius = 4
             pg.draw.circle(screen, color, (int(screen_pos.x), int(screen_pos.y)), radius)
+    def evolve(self):
+
+        evolution_info = {
+            "Pikachu":
+        { "name": "evolved Pikachu",   "hp": 100,  "max_hp": 150,"attack":20,"defense":20 ,"level": 25,"element": "grass","win_count" : 0, "sprite_path": "sprites/sprite1_evolved.png" },
+        "Charizard":
+        { "name": "evolved Charizard", "hp": 150, "max_hp": 200, "attack":50,"defense":50,"level": 36,"element": "grass", "win_count" : 0,"sprite_path": "sprites/sprite2_evolved.png" },
+        "Blastoise":
+        { "name": "evolved Blastoise", "hp": 160, "max_hp": 180, "attack":60,"defense":60,"level": 32,"element": "water", "win_count" : 0,"sprite_path": "sprites/sprite3_evolved.png" },
+        "Venusaur" :
+        { "name": "evolved Venusaur",  "hp": 150,  "max_hp": 160, "attack":20,"defense":20,"level": 30,"element": "fire", "win_count" : 0,"sprite_path": "sprites/sprite4_evolved.png" },
+        "Gengar":
+        { "name": "evolved Gengar",    "hp": 130, "max_hp": 140, "attack":30,"defense":30,"level": 28,"element": "fire", "win_count" : 0,"sprite_path": "sprites/sprite5_evolved.png" },
+        "Dragonite":
+        { "name": "evolved Dragonite", "hp": 200, "max_hp": 220, "attack":80,"defense":80,"level": 40, "element": "water","win_count" : 0,"sprite_path": "sprites/sprite6_evolved.png" }
+            }
+        monster_collection = []
+        for monster in self.game_manager.bag._monsters_data:
+            print(monster)
+            if monster["win_count"] > 0 and "evolved" not in monster["name"] :
+                name = monster["name"]
+                monster["name"] =  (evolution_info[name])["name"]
+                monster["hp"] =  (evolution_info[name])["hp"]
+                monster["max_hp"] =  (evolution_info[name])["max_hp"]
+                monster["attack"] =  (evolution_info[name])["attack"]
+                monster["defense"] =  (evolution_info[name])["defense"]
+                monster["level"] =  (evolution_info[name])["level"]
+                monster["win_count"] =  (evolution_info[name])["win_count"]
+                monster["sprite_path"] =  (evolution_info[name])["sprite_path"]
+                monster_collection.append(monster)
+        self.game_manager .save("saves/game0.json")
+        print(monster_collection)
+        return monster_collection
+    def draw_starburst_transition(self, screen: pg.Surface):
+        center_x = GameSettings.SCREEN_WIDTH // 2
+        center_y = GameSettings.SCREEN_HEIGHT // 2
+        screen_center = (center_x, center_y)
+
+        progress = self.starburst_timer / self.starburst_duration
+        max_radius = pg.Vector2(center_x, center_y).length()
+        current_radius = max_radius * progress 
+        
+        # --- 修正後的參數 ---
+        self.num_rays = 6             # 光芒數量
+        RAY_WIDTH_DEG = 10             # 每個光芒的寬度 (度)
+        
+        angle_step = 360 / self.num_rays # 每個光芒的中心線間隔 (60 度)
+
+        for i in range(self.num_rays):
+            # 1. 計算該光芒的中心角度
+            center_angle = i * angle_step
+            
+            # 2. 定義光芒的起始角和結束角 (創造空隙)
+            start_angle = center_angle - RAY_WIDTH_DEG / 2
+            end_angle = center_angle + RAY_WIDTH_DEG / 2
+            
+            # 3. 轉換為弧度
+            start_rad = math.radians(start_angle) 
+            end_rad = math.radians(end_angle)
+            
+            # 頂點 1：中心點
+            point1 = screen_center
+            
+            # 頂點 2: 沿著 start_rad 的邊緣點
+            point2 = (
+                center_x + current_radius * math.cos(start_rad),
+                center_y - current_radius * math.sin(start_rad)
+            )
+            # 頂點 3: 沿著 end_rad 的邊緣點
+            point3 = (
+                center_x + current_radius * math.cos(end_rad),
+                center_y - current_radius * math.sin(end_rad)
+            )
+
+            # 繪製三角形
+            pg.draw.polygon(screen, self.starburst_color, [point1, point2, point3])
+            
+
+
+
+                
+
+
             
             
         

@@ -105,54 +105,89 @@
   ],
   "current_map": "map.tmx",
   "player": {
-    "x": 24.08125000000003,
+    "x": 23.758340773619867,
     "y": 30.0
   },
   "bag": {
     "monsters": [
       {
-        "name": "Blastoise",
-        "hp": 20,
+        "name": "evolved Blastoise",
+        "hp": 160,
         "max_hp": 180,
-        "attack": 10,
-        "defense": 5,
+        "attack": 60,
+        "defense": 60,
         "level": 32,
         "element": "water",
-        "sprite_path": "menu_sprites/menusprite3.png"
+        "win_count": 1,
+        "sprite_path": "sprites/sprite3_evolved.png"
       },
       {
-        "name": "Gengar",
-        "hp": 10,
+        "name": "evolved Gengar",
+        "hp": 130,
         "max_hp": 140,
-        "attack": 10,
+        "attack": 30,
         "defense": 30,
         "level": 28,
         "element": "fire",
-        "sprite_path": "menu_sprites/menusprite5.png",
-        "hp/ratio": 0.07142857142857142
+        "win_count": 0,
+        "sprite_path": "sprites/sprite5_evolved.png"
+      },
+      {
+        "name": "Venusaur",
+        "hp": 30,
+        "max_hp": 160,
+        "attack": 10,
+        "defense": 10,
+        "level": 15,
+        "element": "fire",
+        "win_count": 0,
+        "sprite_path": "menu_sprites/menusprite4.png"
+      },
+      {
+        "name": "evolved Pikachu",
+        "hp": 100,
+        "max_hp": 150,
+        "attack": 20,
+        "defense": 20,
+        "level": 25,
+        "element": "grass",
+        "win_count": 0,
+        "sprite_path": "sprites/sprite1_evolved.png",
+        "hp/ratio": 0.4
+      },
+      {
+        "name": "Dragonite",
+        "hp": 180,
+        "max_hp": 220,
+        "attack": 40,
+        "defense": 40,
+        "level": 20,
+        "element": "water",
+        "win_count": 0,
+        "sprite_path": "menu_sprites/menusprite6.png"
       }
     ],
     "items": [
       {
         "name": "Potion",
-        "count": 26,
+        "count": 69,
         "tag": 3,
         "sprite_path": "ingame_ui/potion.png"
       },
       {
         "name": "Coins",
-        "count": 18,
+        "count": 39,
         "sprite_path": "ingame_ui/coin.png"
       },
       {
         "name": "Pokeball",
-        "count": 4,
+        "count": -1,
         "tag": 3,
         "sprite_path": "ingame_ui/ball.png"
       },
       {
         "name": "defence_buff",
-        "count": 17,
+        "count": 16,
         "tag": 3,
         "sprite_path": "ingame_ui/options2.png"
       },

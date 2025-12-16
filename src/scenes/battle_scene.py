@@ -35,8 +35,6 @@ class BattleScene(Scene):
         self.cage_drop_y = -400              # Start above the screen
         self.cage_drop_speed = 250          # Fall speed (px per second)
         self.cage_drop_target_y = 0          # Target Y (set when animation starts)
-        self._message = ""
-        self._message_timer = 0
         self._animation_timer = 0.0
         self.tool_button  = Button(
             "UI/raw/UI_Flat_Button02a_4.png", "UI/raw/UI_Flat_Button02a_2.png",
@@ -83,17 +81,18 @@ class BattleScene(Scene):
             "attack":10,
             "level": 25,
             "element":"grass",
+            "win_count" : 0,
             "sprite_path": "menu_sprites/menusprite1.png"
             }
 
         # --- Enemy monster (simple fixed monster) ---
         self.enemy_mon = random.choice([
-      { "name": "dangerous dolpin",   "hp": 85,  "max_hp": 100,"attack":10.0,"defense":5.0,"level": 25,"element":"water" ,"sprite_path": "sprites/sprite14_attack.png" },
-      { "name": "fire dragon", "hp": 150, "max_hp": 200, "attack":50.0,"defense":25.0,"level": 36,"element":"fire", "sprite_path": "sprites/sprite9_attack.png" },
-      { "name": "little seed", "hp": 120, "max_hp": 180, "attack":60.0,"defense":30.0,"level": 32, "element":"grass","sprite_path": "sprites/sprite16_attack.png" },
-      { "name": "Venusaur",  "hp": 90,  "max_hp": 160, "attack":20.0,"defense":10.0,"level": 30, "element":"grass","sprite_path": "sprites\sprite4_attack.png" },
-      { "name": "Gengar",    "hp": 110, "max_hp": 140, "attack":30.0,"defense":15.0,"level": 28, "element":"fire","sprite_path": "sprites/sprite5_attack.png" },
-      { "name": "Dragonite", "hp": 180, "max_hp": 220, "attack":80.0,"defense":40.0,"level": 40, "element":"water","sprite_path": "sprites/sprite6_attack.png" }
+      { "name": "dangerous dolpin",   "hp": 85,  "max_hp": 100,"attack":5.0,"defense":5.0,"level": 12,"element":"water" ,"sprite_path": "sprites/sprite14_attack.png" },
+      { "name": "fire dragon", "hp": 150, "max_hp": 200, "attack":25.0,"defense":5.0,"level": 18,"element":"fire", "sprite_path": "sprites/sprite9_attack.png" },
+      { "name": "little seed", "hp": 120, "max_hp": 180, "attack":30.0,"defense":5.0,"level": 16, "element":"grass","sprite_path": "sprites/sprite16_attack.png" },
+      { "name": "Venusaur",  "hp": 90,  "max_hp": 160, "attack":10.0,"defense":10.0,"level": 15, "element":"grass","sprite_path": "sprites/sprite4_attack.png" },
+      { "name": "Gengar",    "hp": 110, "max_hp": 140, "attack":15.0,"defense":15.0,"level": 14, "element":"fire","sprite_path": "sprites/sprite5_attack.png" },
+      { "name": "Dragonite", "hp": 180, "max_hp": 220, "attack":40.0,"defense":5.0,"level": 20, "element":"water","sprite_path": "sprites/sprite6_attack.png" }
     ])
         
         self.state = "player_turn" 
@@ -109,10 +108,10 @@ class BattleScene(Scene):
         self.is_buff = False
         self.is_monster = False
         self.heal_amount = 25
-        self.player_mon_hp_ratio = self.player_mon["hp"]/self.player_mon["max_hp"]
-        self.enemy_mon_hp_ratio = self.enemy_mon["hp"]/self.enemy_mon["max_hp"]
         self.damage = 0
         self.enemy_mon_ani = Animation(self.enemy_mon["sprite_path"], ["attack"], 4,(250,250))
+        self._message = ""
+        self._message_timer = 0
     def _create_item_buttons(self, items):
         buttons = []
         for index, item in enumerate(items):
@@ -152,14 +151,15 @@ class BattleScene(Scene):
         self.is_buff = False
     def take_damage(self,attacked,attack):
         self.check_element(attack)
-        attacked["hp"] = max(0, min(attacked["max_hp"],attacked["hp"] - (attack["attack"]+self.damage) + attacked["defense"]))
+        attacked["hp"] = max(0, min(attacked["hp"],attacked["hp"] - (attack["attack"]+self.damage) + attacked["defense"]))
         self.damage = 0
     def is_alive(self,monster):
         return monster["hp"] > 0
     def end_battle(self,victor):
-        self.state = "ended"
         Logger.info(f"Battle ended. victor={victor}")
-        scene_manager.change_scene("game")
+        self._message = f"{victor} wins"
+        self._message_timer = 2
+        
 
     @override
     def update(self, dt: float):
@@ -170,8 +170,11 @@ class BattleScene(Scene):
         if self._message_timer > 0:
             self._message_timer -= dt
         if self._message_timer <= 0:
-            self._message = "" # 計時結束，清空短暫訊息
-            self._message_timer = 0
+            if "wins" in self._message:
+                scene_manager.change_scene("game")
+            else:
+                self._message = "" # 計時結束，清空短暫訊息
+                self._message_timer = 0
             
         # 2. 只有在沒有短暫訊息時，才顯示回合提示
         if self._message == "": # 檢查是否有正在顯示的短暫訊息
@@ -198,12 +201,16 @@ class BattleScene(Scene):
                             item["count"] += 2
                         if item["name"] == "Coins":
                             item["count"] += 2  
+                    for monster in scene_manager._scenes["game"].game_manager.bag._monsters_data:
+                        if monster["name"] == self.player_mon["name"]:
+                            monster["win_count"] += 1
                     #add_item function has a return
                             
                     Logger.info(f"{scene_manager._scenes["game"].game_manager.bag._items_data}")
                     scene_manager._scenes["game"].game_manager .save("saves/game0.json")
+                   
                     self.end_battle(victor=self.player_mon["name"])
-                    return
+                  
       
                 self.state = "enemy_turn"
                 self.enemy_timer = 0.0
@@ -211,8 +218,9 @@ class BattleScene(Scene):
                 
             elif input_manager.key_pressed(pg.K_DOWN) or input_manager.key_pressed(pg.K_s):
                 # Logger.info("You fled the battle!")
-                self.end_battle(victor=self.player_mon["name"])
-                return
+                scene_manager.change_scene("game")
+                
+                
         elif self.state == "enemy_turn" :
     
             
@@ -222,8 +230,9 @@ class BattleScene(Scene):
                 # Logger.info(f"Enemy attacks! Player HP is now {self.player_mon['hp']}")
                 
                 if not self.is_alive(self.player_mon):
+                    
                     self.end_battle(victor=self.enemy_mon["name"])
-                    return
+                 
                 
                 self.state = "player_turn"
                 self.player_mon["hp/ratio"] = self.player_mon["hp"]/self.player_mon["max_hp"]
@@ -263,7 +272,8 @@ class BattleScene(Scene):
             for button in self.monster_buttons:
 
                 button.update(dt)
-    
+        self.player_mon_hp_ratio = self.player_mon["hp"]/self.player_mon["max_hp"]
+        self.enemy_mon_hp_ratio = self.enemy_mon["hp"]/self.enemy_mon["max_hp"]
     @override
     def draw(self,screen):
         self.background.draw(screen)
@@ -336,14 +346,16 @@ class BattleScene(Scene):
             # 更新下一行的 Y 座標
             current_y += line_height  
        # 畫面訊息：由 draw 每幀負責繪製，避免被後續繪圖蓋掉
-        if self.state != "ended":
-            if self._message:
-                if self._message_timer > 0:
-                    # 短暫訊息 (例如：使用藥水、屬性相剋)，使用紅字高亮
-                    self.draw_message_color(screen, self._message)
-                else:
-                    # 回合提示訊息 (self._message_timer 已經清空，但 self._message 剛被 update 設為回合提示)
-                    self.draw_message(screen, self._message)
+    
+        if self._message :
+            print(f"self.state = {self.state}")
+            if self._message_timer > 0:
+                # 短暫訊息 (例如：使用藥水、屬性相剋)，使用紅字高亮
+                self.draw_message_color(screen, self._message)
+            elif self._message_timer <= 0 and "wins" not in self._message:
+                # 回合提示訊息 (self._message_timer 已經清空，但 self._message 剛被 update 設為回合提示)
+                self.draw_message(screen, self._message)
+       
 
         pg.draw.rect(screen, (80, 80, 80), (150, GameSettings.SCREEN_HEIGHT - 150, self.player_mon["max_hp"] , 10))
         pg.draw.rect(screen, (0, 200, 0), (150, GameSettings.SCREEN_HEIGHT - 150, self.player_mon["max_hp"] * self.player_mon_hp_ratio ,10))

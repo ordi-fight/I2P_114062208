@@ -6,6 +6,7 @@ from src.scenes.scene import Scene
 from src.interface.components import Button
 from src.core.services import scene_manager, sound_manager, input_manager
 from typing import override
+from src.data.bag import Bag
 
 class MenuScene(Scene):
     # Background Image
@@ -32,6 +33,10 @@ class MenuScene(Scene):
     @override
     def enter(self) -> None:
         sound_manager.play_bgm("RBY 101 Opening (Part 1).ogg")
+        self.bag = scene_manager._scenes["game"].game_manager.bag._monsters_data
+        for monster in self.bag:
+            monster["win_count"] = 0
+        scene_manager._scenes["game"].game_manager .save("saves/game0.json")
         pass
 
     @override

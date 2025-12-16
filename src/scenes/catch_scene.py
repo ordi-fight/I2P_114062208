@@ -1,6 +1,7 @@
 import pygame as pg
 import threading
 import time
+import random
 
 from src.scenes.scene import Scene
 from src.core import GameManager, OnlineManager
@@ -45,13 +46,14 @@ class CatchScene(Scene):
     def enter(self):
         self.game_manager = scene_manager._scenes["game"].game_manager 
         if self.game_manager.bag._monsters_data:
-            self.player_mon = self.game_manager.bag._monsters_data[0]
+            self.player_mon = self.game_manager.bag._monsters_data[0].copy()
             self.player_mon =  {
             "name": "Pikachu",
             "hp": 85,
             "max_hp": 100,
             "hp/ratio":1.0,
             "level": 25,
+            "win_count" : 0,
             "sprite_path": "menu_sprites/menusprite1.png"
             }
         else:
@@ -61,18 +63,20 @@ class CatchScene(Scene):
             "max_hp": 100,
             "hp/ratio":1.0,
             "level": 25,
+            "win_count": 0,
             "sprite_path": "menu_sprites/menusprite1.png"
             }
 
         # --- Enemy monster (simple fixed monster) ---
-        self.enemy_mon = {
-        "name": "Charizard",
-        "hp": 150,
-        "max_hp": 200,
-        "hp/ratio":1.0,
-        "level": 36,
-        "sprite_path": "menu_sprites/menusprite2.png"
-        }
+        self.enemy_mon = random.choice([
+      { "name": "Pikachu",   "hp": 85,  "max_hp": 100,"attack":10,"defense":10 ,"level": 12,"element": "grass","win_count" : 0, "sprite_path": "menu_sprites/menusprite1.png" },
+      { "name": "Charizard", "hp": 150, "max_hp": 200, "attack":25,"defense":25,"level": 18,"element": "grass", "win_count" : 0,"sprite_path": "menu_sprites/menusprite2.png" },
+      { "name": "Blastoise", "hp": 120, "max_hp": 180, "attack":30,"defense":30,"level": 16,"element": "water", "win_count" : 0,"sprite_path": "menu_sprites/menusprite3.png" },
+      { "name": "Venusaur",  "hp": 90,  "max_hp": 160, "attack":10,"defense":10,"level": 15,"element": "fire", "win_count" : 0,"sprite_path": "menu_sprites/menusprite4.png" },
+      { "name": "Gengar",    "hp": 110, "max_hp": 140, "attack":15,"defense":15,"level": 14,"element": "fire", "win_count" : 0,"sprite_path": "menu_sprites/menusprite5.png" },
+      { "name": "Dragonite", "hp": 180, "max_hp": 220, "attack":40,"defense":40,"level": 20, "element": "water","win_count" : 0,"sprite_path": "menu_sprites/menusprite6.png" }
+    ])
+        self.enemy_mon_copy = self.enemy_mon.copy()
         self.player_mon_sprite = Sprite(self.player_mon["sprite_path"], (150,150))
         self.enemy_mon_sprite  = Sprite(self.enemy_mon["sprite_path"],  (150,150))
         self.state = "player_turn" 
@@ -102,15 +106,8 @@ class CatchScene(Scene):
                 # Logger.info(f"Player attacks! Enemy HP is now {self.enemy_mon['hp']}")
                 if not self.is_alive(self.enemy_mon):
                         # Logger.info("You were defeated! Game Over!")
-                    
-                    enermy_mon_data = {
-                        "name": self.enemy_mon["name"],
-                        "hp": self.enemy_mon["hp"],
-                        "max_hp": self.enemy_mon["max_hp"],
-                        "level": self.enemy_mon["level"],
-                        "sprite_path": self.enemy_mon["sprite_path"]
-                    }
-                    scene_manager._scenes["game"].game_manager.bag._monsters_data.append(enermy_mon_data)
+        
+                    scene_manager._scenes["game"].game_manager.bag._monsters_data.append(self.enemy_mon_copy)
                     for item in scene_manager._scenes["game"].game_manager.bag._items_data:
                         if item["name"] == "Pokeball":
                             item["count"] -= 2
@@ -181,6 +178,8 @@ class CatchScene(Scene):
         if self._animation_timer < 0:
             self.state = "player_turn"
             self._animation_timer = 0.0
+        self.player_mon_hp_ratio = self.player_mon["hp"]/self.player_mon["max_hp"]
+        self.enemy_mon_hp_ratio = self.enemy_mon["hp"]/self.enemy_mon["max_hp"]
             
     @override
     def draw(self,screen):
@@ -208,7 +207,7 @@ class CatchScene(Scene):
 
         #the HP bars of player_mon
         pg.draw.rect(screen, (80, 80, 80), (150, GameSettings.SCREEN_HEIGHT - 150, self.player_mon["max_hp"] , 10))
-        pg.draw.rect(screen, (0, 200, 0), (150, GameSettings.SCREEN_HEIGHT - 150, self.player_mon["max_hp"] * self.player_mon["hp/ratio"] ,10))
+        pg.draw.rect(screen, (0, 200, 0), (150, GameSettings.SCREEN_HEIGHT - 150, self.player_mon["max_hp"] * self.player_mon_hp_ratio ,10))
         
         font = pg.font.SysFont(None, 20)
         hp_repr = font.render(f"hp of player monster {self.player_mon["hp"]}", True, (0,0,0))
@@ -216,7 +215,7 @@ class CatchScene(Scene):
 
         #the HP bars of enemy_mon
         pg.draw.rect(screen, (80, 80, 80), (GameSettings.SCREEN_WIDTH - 250, 100, self.enemy_mon["max_hp"], 10))
-        pg.draw.rect(screen, (0, 200, 0), (GameSettings.SCREEN_WIDTH - 250, 100, self.enemy_mon["max_hp"] * self.enemy_mon["hp/ratio"] ,10))
+        pg.draw.rect(screen, (0, 200, 0), (GameSettings.SCREEN_WIDTH - 250, 100, self.enemy_mon["max_hp"] * self.enemy_mon_hp_ratio,10))
         
         font = pg.font.SysFont(None, 20)
         hp_repr = font.render(f"hp of enermy monster {self.enemy_mon["hp"]}", True, (0,0,0))
