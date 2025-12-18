@@ -47,43 +47,27 @@ class CatchScene(Scene):
         self.game_manager = scene_manager._scenes["game"].game_manager 
         if self.game_manager.bag._monsters_data:
             self.player_mon = self.game_manager.bag._monsters_data[0].copy()
-            self.player_mon =  {
-            "name": "Pikachu",
-            "hp": 85,
-            "max_hp": 100,
-            "hp/ratio":1.0,
-            "level": 25,
-            "win_count" : 0,
-            "sprite_path": "menu_sprites/menusprite1.png"
-            }
-        else:
-            self.player_mon =  {
-            "name": "Pikachu",
-            "hp": 85,
-            "max_hp": 100,
-            "hp/ratio":1.0,
-            "level": 25,
-            "win_count": 0,
-            "sprite_path": "menu_sprites/menusprite1.png"
-            }
+            
 
         # --- Enemy monster (simple fixed monster) ---
         self.enemy_mon = random.choice([
       { "name": "Pikachu",   "hp": 85,  "max_hp": 100,"attack":10,"defense":10 ,"level": 12,"element": "grass","win_count" : 0, "sprite_path": "menu_sprites/menusprite1.png" },
       { "name": "Charizard", "hp": 150, "max_hp": 200, "attack":25,"defense":25,"level": 18,"element": "grass", "win_count" : 0,"sprite_path": "menu_sprites/menusprite2.png" },
       { "name": "Blastoise", "hp": 120, "max_hp": 180, "attack":30,"defense":30,"level": 16,"element": "water", "win_count" : 0,"sprite_path": "menu_sprites/menusprite3.png" },
-      { "name": "Venusaur",  "hp": 90,  "max_hp": 160, "attack":10,"defense":10,"level": 15,"element": "fire", "win_count" : 0,"sprite_path": "menu_sprites/menusprite4.png" },
+      { "name": "Venusaur",  "hp": 90,  "max_hp": 160, "attack":10,"defense":10,"level": 15,"element": "grass", "win_count" : 0,"sprite_path": "menu_sprites/menusprite4.png" },
       { "name": "Gengar",    "hp": 110, "max_hp": 140, "attack":15,"defense":15,"level": 14,"element": "fire", "win_count" : 0,"sprite_path": "menu_sprites/menusprite5.png" },
       { "name": "Dragonite", "hp": 180, "max_hp": 220, "attack":40,"defense":40,"level": 20, "element": "water","win_count" : 0,"sprite_path": "menu_sprites/menusprite6.png" }
     ])
+      
         self.enemy_mon_copy = self.enemy_mon.copy()
         self.player_mon_sprite = Sprite(self.player_mon["sprite_path"], (150,150))
         self.enemy_mon_sprite  = Sprite(self.enemy_mon["sprite_path"],  (150,150))
         self.state = "player_turn" 
         self.is_cage_image = False
         self.enemy_fixed_position = True
-    def take_damage(self,monster,damage):
-        monster["hp"] = max(0, monster["hp"] - damage)
+    def take_damage(self,attacked,attack):
+        
+        attacked["hp"] = max(0, min(attacked["hp"],attacked["hp"] - (attack["attack"]) + attacked["defense"]))
     def is_alive(self,monster):
         return monster["hp"] > 0
     def end_battle(self,victor):
@@ -102,7 +86,7 @@ class CatchScene(Scene):
             # self.state = "player_turn"
             Logger.info(f"{input_manager.key_pressed(pg.K_RIGHT)} {input_manager.key_pressed(pg.K_d)}")
             if  input_manager.key_pressed(pg.K_RIGHT) or input_manager.key_pressed(pg.K_d):
-                self.take_damage(self.enemy_mon,120)
+                self.take_damage(self.enemy_mon,self.player_mon)
                 # Logger.info(f"Player attacks! Enemy HP is now {self.enemy_mon['hp']}")
                 if not self.is_alive(self.enemy_mon):
                         # Logger.info("You were defeated! Game Over!")
@@ -134,7 +118,7 @@ class CatchScene(Scene):
             
             # if self.enemy_timer >= self.enemy_delay:
             if input_manager.key_pressed(pg.K_LEFT) or input_manager.key_pressed(pg.K_a):
-                self.take_damage(self.player_mon,10)
+                self.take_damage(self.player_mon,self.enemy_mon)
                 # Logger.info(f"Enemy attacks! Player HP is now {self.player_mon['hp']}")
                 
                 if not self.is_alive(self.player_mon):

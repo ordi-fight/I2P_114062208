@@ -31,6 +31,7 @@ class GameManager:
         self.should_change_scene = False
         self.next_map = ""
         
+        
     @property
     def current_map(self) -> Map:
         return self.maps[self.current_map_key]
@@ -52,7 +53,9 @@ class GameManager:
             return
         
         self.next_map = target
+       
         self.should_change_scene = True
+
             
     def try_switch_map(self) -> None:
         if self.should_change_scene:
@@ -79,7 +82,20 @@ class GameManager:
             return True
         
         return False
-        
+    def check_move_collision(self, rect: pg.Rect):
+   
+        if self.maps[self.current_map_key].check_move_collision(rect):
+            return True
+        # print("this is False")
+        return False
+    def check_move_back_collision(self, rect: pg.Rect):
+        if self.maps[self.current_map_key].check_move_back_collision(rect):
+            return True
+        return False
+    def check_pokemonball_collision(self, rect: pg.Rect):
+        if self.maps[self.current_map_key].check_pokemonball_collision(rect):
+            return True
+        return False
     def save(self, path: str) -> None:
         try:
             with open(path, "w") as f:

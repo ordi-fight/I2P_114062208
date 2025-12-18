@@ -13,12 +13,12 @@ class Player(Entity):
 
     def __init__(self, x: float, y: float, game_manager: GameManager) -> None:
         super().__init__(x, y, game_manager)
-
+        self.speed = 200
     @override
     
     def update(self, dt: float) -> None:
         dis = Position(0, 0)
-        speed = 200
+        
         if input_manager.key_down(pygame.K_LEFT) or input_manager.key_down(pygame.K_a):
             dis.x -= 1
             self.animation.switch("left")
@@ -36,11 +36,11 @@ class Player(Entity):
             dis.x /= length
             dis.y /= length
 
-        self.position.x += dis.x*speed*dt
+        self.position.x += dis.x*self.speed*dt
 
         if self.game_manager.check_collision(pygame.Rect(self.position.x, self.position.y,GameSettings.TILE_SIZE ,GameSettings.TILE_SIZE )):
             self.position.x = self._snap_to_grid(self.position.x)
-        self.position.y += dis.y*speed*dt
+        self.position.y += dis.y*self.speed*dt
         if self.game_manager.check_collision(pygame.Rect(self.position.x, self.position.y,GameSettings.TILE_SIZE ,GameSettings.TILE_SIZE )):
             self.position.y = self._snap_to_grid(self.position.y)
         if self.game_manager.check_bush_collision(pygame.Rect(self.position.x, self.position.y,GameSettings.TILE_SIZE ,GameSettings.TILE_SIZE )) :
@@ -59,6 +59,9 @@ class Player(Entity):
 
                 
         super().update(dt)
+    def enter(self):
+
+        pass
 
     @override
     def draw(self, screen: pygame.Surface, camera: PositionCamera) -> None:

@@ -29,6 +29,9 @@ class Map:
         # Prebake the collision map
         self._collision_map = self._create_collision_map()
         self._collision_bush_map  = self._create_bush_collision_map()
+        self.move_to_map = self._create_move_map()
+        self.move_back_map = self._create_moveback_map()
+        self.pokemon_map = self._create_pokemonball_map()
 
     def update(self, dt: float):
         return
@@ -57,6 +60,22 @@ class Map:
             if rect.colliderect(block):
                 return True
 
+        return False
+    def check_move_collision(self, rect: pg.Rect):
+        
+        for block in self.move_to_map:
+            if rect.colliderect(block):
+                return True
+        return False
+    def check_move_back_collision(self, rect: pg.Rect):
+        for block in self.move_back_map:
+            if rect.colliderect(block):
+                return True
+        return False
+    def check_pokemonball_collision(self, rect: pg.Rect):
+        for block in self.pokemon_map:
+            if rect.colliderect(block):
+                return True
         return False
         
     def check_teleport(self, pos: Position) -> Teleport | None:
@@ -121,9 +140,57 @@ class Map:
                                 )
                         rects.append(rect)
 
-        # print(rects)
+        
         return rects
+    def _create_move_map(self):
+        rects = []
+        for layer in self.tmxdata.visible_layers:
+            
+            if isinstance(layer, pytmx.TiledTileLayer) and ("move_to" in layer.name ):
+                
+                for x,y,grid in layer:
+                    if grid != 0:
+                        rect = pg.Rect(
+                                x * GameSettings.TILE_SIZE,      # 左上角 X 座標（像素）
+                                y * GameSettings.TILE_SIZE,      # 左上角 Y 座標（像素）
+                                GameSettings.TILE_SIZE,          # 寬度（每格寬）
+                                GameSettings.TILE_SIZE           # 高度（每格高）
+                                )
+                        
+                        rects.append(rect)
+        return rects
+    def _create_moveback_map(self):
+        rects = []
+        for layer in self.tmxdata.visible_layers:
+            if isinstance(layer, pytmx.TiledTileLayer) and ("move_back" in layer.name ):
+                for x,y,grid in layer:
+                    if grid != 0:
+                        rect = pg.Rect(
+                                x * GameSettings.TILE_SIZE,      # 左上角 X 座標（像素）
+                                y * GameSettings.TILE_SIZE,      # 左上角 Y 座標（像素）
+                                GameSettings.TILE_SIZE,          # 寬度（每格寬）
+                                GameSettings.TILE_SIZE           # 高度（每格高）
+                                )
+                        rects.append(rect)
 
+        
+        return rects
+    def _create_pokemonball_map(self):
+        rects = []
+        for layer in self.tmxdata.visible_layers:
+            if isinstance(layer, pytmx.TiledTileLayer) and ("pokemonball" in layer.name ):
+                for x,y,grid in layer:
+                    if grid != 0:
+                        rect = pg.Rect(
+                                x * GameSettings.TILE_SIZE,      # 左上角 X 座標（像素）
+                                y * GameSettings.TILE_SIZE,      # 左上角 Y 座標（像素）
+                                GameSettings.TILE_SIZE,          # 寬度（每格寬）
+                                GameSettings.TILE_SIZE           # 高度（每格高）
+                                )
+                        rects.append(rect)
+
+        
+        return rects
 
     @classmethod
     def from_dict(cls, data: dict) -> "Map":

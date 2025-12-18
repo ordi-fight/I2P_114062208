@@ -2,6 +2,7 @@ import pygame as pg
 import threading
 import time
 import math
+import random
 
 from src.scenes.scene import Scene
 from src.core import GameManager, OnlineManager
@@ -51,16 +52,18 @@ class GameScene(Scene):
             GameSettings.SCREEN_WIDTH - 200, 10 , 100, 100,
             lambda: scene_manager.push_scene("bag")
         )
+        self.speedup_button = Button(
+           "UI/raw/UI_Flat_Banner03a.png","UI/raw/UI_Flat_Bar01a.png",
+                0, 0, 300, 100,            
+                on_click= lambda :  self.speed_up()  
+        )
         # nevagation
         self.pathfinding_service = PathfindingService(self.game_manager)
         self.current_path: list[TileCoord] = [] # 儲存計算出的路徑 (使用 TileCoord tuple)
         
         # 範例目的地列表 (現在使用 TileCoord tuple)
-        self.DESTINATIONS: dict[str, TileCoord] = {
-            "gym": (24, 24), 
-            "battle": (24, 30),
-    
-        }
+       
+        
         self.is_go_to_gym = False
         self.is_go_to_battle = False
         self.gym_button = Button( "UI/raw/UI_Flat_Button02a_4.png", "UI/raw/UI_Flat_Button02a_2.png",
@@ -73,6 +76,7 @@ class GameScene(Scene):
         self.is_go_to_battle = False
         self.current_path = []
         self.move_index = 0
+        self.move_P_index = 0
         self.timer = 0
         self.done = False
         self.is_starburst_active = False
@@ -80,7 +84,16 @@ class GameScene(Scene):
         self.starburst_duration = 0.8 
         self.num_rays = 6
         self.starburst_color = (0, 0, 0)
-      
+        self.move_to_path = [(34,17),(26,18),(23,23),(18,28),(12,32)]
+        self.move_back_path = [(18,28),(23,23),(26,18),(45,14)]
+        self.pokemonball_path = []
+        self.pokemonball_sprite = Sprite("ingame_ui/ball.png",(32,32))
+        self.is_catch = False
+        self.barrar_img = pg.image.load("assets/images/UI/raw/UI_Flat_Banner03a.png").convert_alpha()
+        self.barrar_img = pg.transform.scale(self.barrar_img, (300, 100))
+        self.barrar_posi = (0,0)
+        self._message = ""
+        self._message_timer = 0
     @override
     def enter(self) -> None:
         sound_manager.play_bgm("RBY 103 Pallet Town.ogg")
@@ -89,6 +102,9 @@ class GameScene(Scene):
         self.monster_collection = self.evolve()
         if self.monster_collection:
             self.trigger_starburst()
+
+        self.monster_catch = []
+        
     @override
     def exit(self) -> None:
         if self.online_manager:
@@ -98,6 +114,12 @@ class GameScene(Scene):
     def update(self, dt: float):
         self.gym_button.update(dt)
         self.battle_button.update(dt)
+        self.speedup_button.update(dt)
+        if self._message_timer > 0:
+            self._message_timer -= dt
+        if self._message_timer <= 0:
+            self._message = "" # 計時結束，清空短暫訊息
+            self._message_timer = 0
         # animation for change scene
         if self.is_starburst_active:
             self.starburst_timer += dt
@@ -134,6 +156,15 @@ class GameScene(Scene):
 
         self.setting_button.update(dt)
         self.button_backpack.update(dt)
+        if not self.current_path:
+            if self.game_manager.check_move_collision(self.game_manager.player.animation.rect):
+                self.current_path = self.move_to_path.copy()
+                self.move_index = 0 # 重置索引
+                self.timer = 0
+            elif self.game_manager.check_move_back_collision(self.game_manager.player.animation.rect):
+                self.current_path = self.move_back_path.copy()
+                self.move_index = 0
+                self.timer = 0
         
         if self.current_path and self.game_manager.player:
             if self.move_index < len(self.current_path):
@@ -159,25 +190,86 @@ class GameScene(Scene):
                     
                     self.move_index += 1
                     
+                    
             else:
                 self.done = True
                 self.current_path = []
+        # print(self.game_manager.check_move_collision(self.game_manager.player.animation.rect))
+        # print(self.game_manager.player.position)
+        # if self.game_manager.check_move_collision(self.game_manager.player.animation.rect):
+        # the next frame the condition will be false and the player stop
+        if self.game_manager.check_pokemonball_collision(self.game_manager.player.animation.rect) and input_manager.key_pressed(pg.K_SPACE):
+            # print("hello")
+            self.pokemonball_path = [(random.randint(41,61)* GameSettings.TILE_SIZE ,random.randint(1,36)* GameSettings.TILE_SIZE) for _ in range(20)]
+            # print(self.pokemonball_path)
+        if self.pokemonball_path :
+            if self.move_P_index < len(self.pokemonball_path):
+                # print(self.current_path)  # 有在跑
+                if not self.game_manager.player.animation.rect.colliderect(self.pokemonball_sprite.rect):
+                    pos = self.pokemonball_path[self.move_P_index]
                 
+                    if self.timer > 0 :
+                        self.timer -= dt
+                    else:
+                        self.pokemonball_sprite.rect.topleft = pos
+                        self.timer = 2
+                        
+                        self.move_P_index += 1
+                else:
+                    # print("yes")
+                    for item in self.game_manager.bag._items_data:
 
+                        if item["name"] == "Pokeball":
 
-                
+                            item["count"] += 1
+                    catch_monster = random.choice([
+      { "name": "Pikachu",   "hp": 85,  "max_hp": 100,"attack":10,"defense":10 ,"level": 12,"element": "grass","win_count" : 0, "sprite_path": "menu_sprites/menusprite1.png" },
+      { "name": "evolved Charizard", "hp": 150, "max_hp": 200, "attack":50,"defense":50,"level": 36,"element": "grass", "win_count" : 0,"sprite_path": "sprites/sprite2_evolved.png" },
+      { "name": "Blastoise", "hp": 120, "max_hp": 180, "attack":30,"defense":30,"level": 16,"element": "water", "win_count" : 0,"sprite_path": "menu_sprites/menusprite3.png" },
+      { "name": "Venusaur",  "hp": 90,  "max_hp": 160, "attack":10,"defense":10,"level": 15,"element": "fire", "win_count" : 0,"sprite_path": "menu_sprites/menusprite4.png" },
+      { "name": "Gengar",    "hp": 110, "max_hp": 140, "attack":15,"defense":15,"level": 14,"element": "fire", "win_count" : 0,"sprite_path": "menu_sprites/menusprite5.png" },
+      { "name": "evolved Dragonite", "hp": 200, "max_hp": 220, "attack":80,"defense":80,"level": 40, "element": "water","win_count" : 0,"sprite_path": "sprites/sprite6_evolved.png" }
+    ])
+                    
+                    self.monster_catch.append(catch_monster)
+                    self.game_manager.bag._monsters_data.append(catch_monster)
+                    self.game_manager .save("saves/game0.json")
+                    self.is_catch = True
+                    self.pokemonball_path = []
+            else:
+                self.pokemonball_path = []
+                self.move_P_index = 0
+    
 
     def go_to_gym(self):
+    
+        self.DESTINATIONS: dict[str, TileCoord] = {
+            "gym": (24, 24), 
+            "battle": (24, 30)
+    
+        }
+      
         self.is_go_to_gym = False
         self.is_go_to_battle = False
         self.current_path = []
         self.move_index = 0
         self.timer = 0
         self.done = False
-
         self.is_go_to_gym = True
         self.start_navigation(self.DESTINATIONS["gym"])
     def go_to_battle(self):
+        if self.game_manager.current_map.path_name == "map.tmx":
+            self.DESTINATIONS: dict[str, TileCoord] = {
+                "gym": (24, 24), 
+                "battle": (24, 30)
+        
+            }
+        elif self.game_manager.current_map.path_name == "beach_map.tmx":
+              self.DESTINATIONS: dict[str, TileCoord] = {
+                
+                "battle": (54, 26)
+        
+            }
         self.is_go_to_gym = False
         self.is_go_to_battle = False
         self.current_path = []
@@ -186,7 +278,9 @@ class GameScene(Scene):
         self.done = False
 
         self.is_go_to_battle = True
+        # print(self.DESTINATIONS)
         self.start_navigation(self.DESTINATIONS["battle"])
+       
     def trigger_starburst(self):
        
         self.is_starburst_active = True
@@ -205,20 +299,6 @@ class GameScene(Scene):
                 target_tile
             )
             
-            # for pos in self.current_path:
-            #     x,y = pos
-            #     x = x* GameSettings.TILE_SIZE
-            #     y = y* GameSettings.TILE_SIZE
-                
-            #     self.game_manager.player.position = Position(x,y)
-            
-            
-            # Logger.info(f"Path {self.current_path}")
-            # Logger.info(f"Path calculated with {len(self.current_path)} steps.")
-            # if self.is_go_to_gym == False and self.is_go_to_battle == True:
-            #     self.is_go_to_battle = False
-            # if self.is_go_to_gym == True and self.is_go_to_battle == False:
-            #     self.is_go_to_gym = False
                
         else:
             self.current_path = []
@@ -241,11 +321,14 @@ class GameScene(Scene):
             self.draw_navigation_path(screen)
             if self.done == True:
                 self.game_manager.current_map.draw(screen, camera)
+            # print(f"{repr(self.game_manager.current_map.path_name)}_______________")
             self.game_manager.player.draw(screen, camera)
+           
+
         else:
             camera = PositionCamera(0, 0)
             self.game_manager.current_map.draw(screen, camera)
-     
+   
         self.draw_minimap(screen)
 
         for enemy in self.game_manager.current_enemy_trainers:
@@ -267,7 +350,9 @@ class GameScene(Scene):
                     self.sprite_online.update_pos(pos)
                     self.sprite_online.switch(direction)
                     self.sprite_online.draw(screen)
-         
+        if self._message :
+           
+            self.draw_message(screen, self._message)
        
         
         # setting_button
@@ -294,6 +379,92 @@ class GameScene(Scene):
         scene_manager.write(35,"battle",screen,(0,0,0),( GameSettings.SCREEN_WIDTH - 400, 35))
         if self.is_starburst_active:
             self.draw_starburst_transition(screen)
+        if self.pokemonball_path and self.game_manager.player:
+            # 獲取目前的相機實例
+            camera = self.game_manager.player.camera
+            
+            # 1. 取得球在世界中的位置 (像素)
+            world_pos = Position(self.pokemonball_sprite.rect.x, self.pokemonball_sprite.rect.y)
+            
+            # 2. 透過相機轉換成螢幕上的座標
+            screen_pos = camera.transform_position_as_position(world_pos)
+            
+            # 3. 建立一個臨時 rect 並繪製
+            draw_rect = self.pokemonball_sprite.rect.copy()
+            draw_rect.topleft = (int(screen_pos.x), int(screen_pos.y))
+            
+            # 直接用 screen.blit 繪製，確保它在地圖物件層之上
+            screen.blit(self.pokemonball_sprite.image, draw_rect)
+        x = 900
+        y = 100
+        if self.is_catch:
+
+            if not self.monster_catch:
+                return
+
+            font = pg.font.SysFont(None, 28)
+
+            x = 900
+            y = 100
+            spacing = 110   # 每隻怪獸的縱向間距
+
+            for mon in self.monster_catch:
+
+                name = mon.get("name", "Unknown")
+                level = mon.get("level", 1)
+                hp = mon.get("hp", 1)
+                max_hp = mon.get("max_hp", 1)
+
+                sprite_path = "assets/images/" + mon.get("sprite_path")
+                sprite = pg.image.load(sprite_path).convert_alpha()
+                sprite = pg.transform.scale(sprite, (90, 90))
+                # ---white background----
+                self.barrar_posi = (x,y)
+                screen.blit(self.barrar_img, self.barrar_posi)
+
+                # --- Draw sprite ---
+                screen.blit(sprite, (x, y))
+
+                # --- Draw name ---
+                name_text = font.render(f"{name}", True, (0, 0, 0))
+                screen.blit(name_text, (x + 110, y + 10))
+
+                # --- Draw HP bar ---
+                # HP 百分比
+                hp_ratio = hp / max_hp
+                bar_width = 150
+                bar_height = 12
+
+                # 背景條（灰色）
+                pg.draw.rect(screen, (80, 80, 80), (x + 110, y + 40, bar_width, bar_height))
+
+                # 綠色血條
+                pg.draw.rect(screen, (0, 200, 0), (x + 110, y + 40, bar_width * hp_ratio, bar_height))
+
+                # --- Draw level ---
+                lvl_text = font.render(f"Lv {level}", True, (0, 0, 0))
+                screen.blit(lvl_text, (x + 110, y + 40))
+
+                # --- HP Text ---
+                hp_text = font.render(f"{hp}/{max_hp}", True, (0, 0, 0))
+                screen.blit(hp_text, (x + 110, y + 60))
+
+                y += spacing
+        if self.game_manager.current_map.path_name == "beach_map.tmx":
+            self.speedup_button.hitbox.top = y
+            self.speedup_button.hitbox.left = x
+            self.speedup_button.draw(screen)
+            font = pg.font.Font("assets/fonts/Pokemon Solid.ttf", 30)
+
+            # show message
+            message_page = font.render("speed up", True, (0,0,0))
+            message_page_rect = message_page.get_rect()
+            message_page_rect.center = self.speedup_button.hitbox.center
+            screen.blit(message_page, message_page_rect)
+
+
+        
+       
     def draw_minimap(self, screen: pg.Surface) -> None:
         if self.game_manager.player is None:
             return
@@ -406,7 +577,7 @@ class GameScene(Scene):
             }
         monster_collection = []
         for monster in self.game_manager.bag._monsters_data:
-            print(monster)
+           
             if monster["win_count"] > 0 and "evolved" not in monster["name"] :
                 name = monster["name"]
                 monster["name"] =  (evolution_info[name])["name"]
@@ -419,7 +590,7 @@ class GameScene(Scene):
                 monster["sprite_path"] =  (evolution_info[name])["sprite_path"]
                 monster_collection.append(monster)
         self.game_manager .save("saves/game0.json")
-        print(monster_collection)
+       
         return monster_collection
     def draw_starburst_transition(self, screen: pg.Surface):
         center_x = GameSettings.SCREEN_WIDTH // 2
@@ -464,6 +635,31 @@ class GameScene(Scene):
 
             # 繪製三角形
             pg.draw.polygon(screen, self.starburst_color, [point1, point2, point3])
+    def speed_up(self):
+
+        for item in self.game_manager.bag._items_data:
+
+            if item["name"] == "Coins":
+                if item["count"] > 5:
+                    item["count"] -= 5
+                    self._message = "Coins - 5 speed up 200"
+                    self._message_timer = 2
+                else:
+                    self._message = "insufficient coins, more battle to earn coins"
+                    self._message_timer = 2
+
+        self.game_manager.player.speed += 200
+    def draw_message(self, screen: pg.Surface, message: str):
+
+        font = pg.font.Font("assets/fonts/Minecraft.ttf", 30)
+
+        # show message
+        message_page = font.render(message, True, (255,255,255))
+        message_page_rect = message_page.get_rect()
+        message_page_rect.top = screen.get_rect().top
+        message_page_rect.left = 230
+
+        screen.blit(message_page, message_page_rect)
             
 
 

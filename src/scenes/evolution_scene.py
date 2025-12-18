@@ -109,7 +109,7 @@ class EvolutionScene(Scene):
 
             for line in lines:
             
-                line_surface = font_1.render(line, True, (255, 255, 255))
+                line_surface = font_1.render(line, True, (0, 0, 0))
                 
                 screen.blit(line_surface, (x_start, current_y))
                 

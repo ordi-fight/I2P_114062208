@@ -87,13 +87,15 @@ class BattleScene(Scene):
 
         # --- Enemy monster (simple fixed monster) ---
         self.enemy_mon = random.choice([
-      { "name": "dangerous dolpin",   "hp": 85,  "max_hp": 100,"attack":5.0,"defense":5.0,"level": 12,"element":"water" ,"sprite_path": "sprites/sprite14_attack.png" },
-      { "name": "fire dragon", "hp": 150, "max_hp": 200, "attack":25.0,"defense":5.0,"level": 18,"element":"fire", "sprite_path": "sprites/sprite9_attack.png" },
-      { "name": "little seed", "hp": 120, "max_hp": 180, "attack":30.0,"defense":5.0,"level": 16, "element":"grass","sprite_path": "sprites/sprite16_attack.png" },
-      { "name": "Venusaur",  "hp": 90,  "max_hp": 160, "attack":10.0,"defense":10.0,"level": 15, "element":"grass","sprite_path": "sprites/sprite4_attack.png" },
-      { "name": "Gengar",    "hp": 110, "max_hp": 140, "attack":15.0,"defense":15.0,"level": 14, "element":"fire","sprite_path": "sprites/sprite5_attack.png" },
-      { "name": "Dragonite", "hp": 180, "max_hp": 220, "attack":40.0,"defense":5.0,"level": 20, "element":"water","sprite_path": "sprites/sprite6_attack.png" }
+      { "name": "dangerous dolpin",   "hp": 85,  "max_hp": 100,"attack":15,"defense":8.0,"level": 12,"element":"water" ,"sprite_path": "sprites/sprite14_attack.png" },
+      { "name": "fire dragon", "hp": 150, "max_hp": 200, "attack":30.0,"defense":20.0,"level": 18,"element":"fire", "sprite_path": "sprites/sprite9_attack.png" },
+      { "name": "little seed", "hp": 120, "max_hp": 180, "attack":35.0,"defense":25.0,"level": 16, "element":"grass","sprite_path": "sprites/sprite16_attack.png" },
+      { "name": "Venusaur",  "hp": 90,  "max_hp": 160, "attack":15.0,"defense":5.0,"level": 15, "element":"grass","sprite_path": "sprites/sprite4_attack.png" },
+      { "name": "Gengar",    "hp": 110, "max_hp": 140, "attack":20.0,"defense":10.0,"level": 14, "element":"fire","sprite_path": "sprites/sprite5_attack.png" },
+      { "name": "Dragonite", "hp": 180, "max_hp": 220, "attack":45.0,"defense":38.0,"level": 20, "element":"water","sprite_path": "sprites/sprite6_attack.png" }
     ])
+   
+       
         
         self.state = "player_turn" 
         self.is_cage_image = False
