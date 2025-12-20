@@ -15,7 +15,7 @@
         }
       ],
       "player": {
-        "x": 15.0,
+        "x": 16.0,
         "y": 30.0
       },
       "enemy_trainers": [
@@ -67,11 +67,16 @@
           "x": 42,
           "y": 30,
           "destination": "map.tmx"
+        },
+        {
+          "x": 43,
+          "y": 30,
+          "destination": "map.tmx"
         }
       ],
       "player": {
-        "x": 41.0,
-        "y": 25.0
+        "x": 42.0,
+        "y": 29.0
       },
       "enemy_trainers": [
         {
@@ -113,8 +118,8 @@
   ],
   "current_map": "map.tmx",
   "player": {
-    "x": 27.0,
-    "y": 31.0
+    "x": 16.0,
+    "y": 30.0
   },
   "bag": {
     "monsters": [
@@ -130,16 +135,15 @@
         "sprite_path": "menu_sprites/menusprite1.png"
       },
       {
-        "name": "Gengar",
-        "hp": 105,
-        "max_hp": 165,
-        "attack": 30,
-        "defense": 20,
-        "level": 14,
-        "element": "fire",
+        "name": "Venusaur",
+        "hp": 100,
+        "max_hp": 170,
+        "attack": 28,
+        "defense": 18,
+        "level": 15,
+        "element": "grass",
         "win_count": 0,
-        "sprite_path": "menu_sprites/menusprite5.png",
-        "hp/ratio": 0.6363636363636364
+        "sprite_path": "menu_sprites/menusprite4.png"
       },
       {
         "name": "Dragonite",
@@ -150,54 +154,42 @@
         "level": 20,
         "element": "water",
         "win_count": 0,
-        "sprite_path": "menu_sprites/menusprite6.png",
-        "hp/ratio": 0.72
-      },
-      {
-        "name": "Gengar",
-        "hp": 115,
-        "max_hp": 165,
-        "attack": 30,
-        "defense": 20,
-        "level": 14,
-        "element": "fire",
-        "win_count": 0,
-        "sprite_path": "menu_sprites/menusprite5.png"
+        "sprite_path": "menu_sprites/menusprite6.png"
       }
     ],
     "items": [
       {
         "name": "Potion",
-        "count": 87,
+        "count": 30,
         "tag": 3,
         "sprite_path": "ingame_ui/potion.png"
       },
       {
         "name": "Coins",
-        "count": 28,
+        "count": 50,
         "sprite_path": "ingame_ui/coin.png"
       },
       {
         "name": "Pokeball",
-        "count": -4,
+        "count": 50,
         "tag": 3,
         "sprite_path": "ingame_ui/ball.png"
       },
       {
         "name": "defence_buff",
-        "count": 1,
+        "count": 10,
         "tag": 3,
         "sprite_path": "ingame_ui/options2.png"
       },
       {
         "name": "attack_buff",
-        "count": 1,
+        "count": 10,
         "tag": 5,
         "sprite_path": "ingame_ui/options8.png"
       },
       {
         "name": "heal_buff",
-        "count": 1,
+        "count": 10,
         "tag": 6,
         "sprite_path": "ingame_ui/options5.png"
       }

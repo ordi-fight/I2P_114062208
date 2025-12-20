@@ -628,21 +628,24 @@ class BattleScene(Scene):
 
 
     def shop(self,item_name):
-      
-        for item in scene_manager._scenes["game"].game_manager.bag._items_data:
-            if item["count"] > 1:
-                item["count"] -= 1
-            else:
-                self._message = "insufficient items"
-                self.message_timer = 2
-            if item["name"] == "defence_buff":
-               
-                self.player_mon["defense"] += 20
-            if item["name"] == "attack_buff":
 
-                self.player_mon["attack"] += 20
-            if item["name"] == "heal_buff":
-               self.heal_amount += 10
+        for item in scene_manager._scenes["game"].game_manager.bag._items_data:
+            if item["name"] == "defence_buff" and item_name == "defence_buff":
+                if item["count"] > 1:
+                    item["count"] -= 1
+                    self.player_mon["defense"] += 20
+                
+                
+            elif item["name"] == "attack_buff" and item_name == "attack_buff":
+                if item["count"] > 1:
+                    item["count"] -= 1
+                    self.player_mon["attack"] += 20
+                    
+            elif item["name"] == "heal_buff" and item_name ==  "heal_buff":
+                if item["count"] > 1:
+                    item["count"] -= 1
+                    self.heal_amount += 10
+                  
         self.is_buff = False
     def switch_monster(self,monster):
         self.player_mon = monster
