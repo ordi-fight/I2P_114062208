@@ -126,8 +126,7 @@ class CatchScene(Scene):
         self.is_pokeball = False
         self.pokeball_move_index = 0
         self.timer = 0
-        self._buff_message = ""
-        self.buff_message_timer = 0
+       
     def _create_item_buttons(self, items):
         buttons = []
         for index, item in enumerate(items):
@@ -188,10 +187,7 @@ class CatchScene(Scene):
             elif self.attack_timer <= 0:
                 self.attack_animation =""
                 self.attack_monster = ""
-        if self.buff_message_timer > 0:
-            self.buff_message_timer-= dt
-        elif self.buff_message_timer <= 0:
-            self._buff_message = ""
+      
                 
         if self.pokeball_timer>0:
             self.pokeball_timer -=dt
@@ -504,8 +500,7 @@ class CatchScene(Scene):
                         
 
                         y += spacing
-                if self._buff_message:
-                    scene_manager.write(30,self._buff_message,screen,(0,0,0),(300,250))
+                        
             elif self.is_monster and not self.is_buff:
                
                 font = pg.font.SysFont(None, 28)
@@ -667,30 +662,18 @@ class CatchScene(Scene):
                 if item["count"] > 1:
                     item["count"] -= 1
                     self.player_mon["defense"] += 20
-                    self._buff_message = "defence_buff -1"
-                    self.buff_message_timer = 2
-                else:
-                    self._buff_message = "insufficient items"
-                    self.buff_message_timer = 2
+                
                 
             if item["name"] == "attack_buff" and item_name == "attack_buff":
                 if item["count"] > 1:
                     item["count"] -= 1
                     self.player_mon["attack"] += 20
-                    self._buff_message = "attack_buff -1"
-                    self.buff_message_timer = 2
-                else:
-                    self._buff_message = "insufficient items"
-                    self.buff_message_timer = 2
+                  
             if item["name"] == "heal_buff" and item_name ==  "heal_buff":
                 if item["count"] > 1:
                     item["count"] -= 1
                     self.heal_amount += 10
-                    self._buff_message = "heal_buff -1"
-                    self.buff_message_timer = 2
-                else:
-                    self._buff_message = "insufficient items"
-                    self.buff_message_timer = 2
+                  
         self.is_buff = False
     def switch_monster(self,monster):
         self.player_mon = monster
