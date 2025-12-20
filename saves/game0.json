@@ -118,10 +118,53 @@
   },
   "bag": {
     "monsters": [
-  { "name": "Pikachu",   "hp": 90,  "max_hp": 130, "attack": 25, "defense": 15, "level": 12, "element": "grass", "win_count": 0, "sprite_path": "menu_sprites/menusprite1.png" },
-  { "name": "Gengar",    "hp": 115, "max_hp": 165, "attack": 30, "defense": 20, "level": 14, "element": "fire",  "win_count": 0, "sprite_path": "menu_sprites/menusprite5.png" },
-  { "name": "Dragonite", "hp": 180, "max_hp": 250, "attack": 45, "defense": 35, "level": 20, "element": "water", "win_count": 0, "sprite_path": "menu_sprites/menusprite6.png" }
-],
+      {
+        "name": "Pikachu",
+        "hp": 90,
+        "max_hp": 130,
+        "attack": 25,
+        "defense": 15,
+        "level": 12,
+        "element": "grass",
+        "win_count": 0,
+        "sprite_path": "menu_sprites/menusprite1.png"
+      },
+      {
+        "name": "Gengar",
+        "hp": 105,
+        "max_hp": 165,
+        "attack": 30,
+        "defense": 20,
+        "level": 14,
+        "element": "fire",
+        "win_count": 0,
+        "sprite_path": "menu_sprites/menusprite5.png",
+        "hp/ratio": 0.6363636363636364
+      },
+      {
+        "name": "Dragonite",
+        "hp": 180,
+        "max_hp": 250,
+        "attack": 45,
+        "defense": 35,
+        "level": 20,
+        "element": "water",
+        "win_count": 0,
+        "sprite_path": "menu_sprites/menusprite6.png",
+        "hp/ratio": 0.72
+      },
+      {
+        "name": "Gengar",
+        "hp": 115,
+        "max_hp": 165,
+        "attack": 30,
+        "defense": 20,
+        "level": 14,
+        "element": "fire",
+        "win_count": 0,
+        "sprite_path": "menu_sprites/menusprite5.png"
+      }
+    ],
     "items": [
       {
         "name": "Potion",
@@ -131,12 +174,12 @@
       },
       {
         "name": "Coins",
-        "count": 22,
+        "count": 28,
         "sprite_path": "ingame_ui/coin.png"
       },
       {
         "name": "Pokeball",
-        "count": 2,
+        "count": -4,
         "tag": 3,
         "sprite_path": "ingame_ui/ball.png"
       },
