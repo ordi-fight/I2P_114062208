@@ -51,13 +51,13 @@ class CatchScene(Scene):
 
         # --- Enemy monster (simple fixed monster) ---
         self.enemy_mon = random.choice([
-      { "name": "Pikachu",   "hp": 85,  "max_hp": 100,"attack":10,"defense":10 ,"level": 12,"element": "grass","win_count" : 0, "sprite_path": "menu_sprites/menusprite1.png" },
-      { "name": "Charizard", "hp": 150, "max_hp": 200, "attack":25,"defense":25,"level": 18,"element": "grass", "win_count" : 0,"sprite_path": "menu_sprites/menusprite2.png" },
-      { "name": "Blastoise", "hp": 120, "max_hp": 180, "attack":30,"defense":30,"level": 16,"element": "water", "win_count" : 0,"sprite_path": "menu_sprites/menusprite3.png" },
-      { "name": "Venusaur",  "hp": 90,  "max_hp": 160, "attack":10,"defense":10,"level": 15,"element": "grass", "win_count" : 0,"sprite_path": "menu_sprites/menusprite4.png" },
-      { "name": "Gengar",    "hp": 110, "max_hp": 140, "attack":15,"defense":15,"level": 14,"element": "fire", "win_count" : 0,"sprite_path": "menu_sprites/menusprite5.png" },
-      { "name": "Dragonite", "hp": 180, "max_hp": 220, "attack":40,"defense":40,"level": 20, "element": "water","win_count" : 0,"sprite_path": "menu_sprites/menusprite6.png" }
-    ])
+  { "name": "Pikachu",   "hp": 90,  "max_hp": 130, "attack": 25, "defense": 15, "level": 12, "element": "grass", "win_count": 0, "sprite_path": "menu_sprites/menusprite1.png" },
+  { "name": "Charizard", "hp": 150, "max_hp": 210, "attack": 35, "defense": 25, "level": 18, "element": "grass", "win_count": 0, "sprite_path": "menu_sprites/menusprite2.png" },
+  { "name": "Blastoise", "hp": 130, "max_hp": 190, "attack": 38, "defense": 30, "level": 16, "element": "water", "win_count": 0, "sprite_path": "menu_sprites/menusprite3.png" },
+  { "name": "Venusaur",  "hp": 100, "max_hp": 170, "attack": 28, "defense": 18, "level": 15, "element": "grass", "win_count": 0, "sprite_path": "menu_sprites/menusprite4.png" },
+  { "name": "Gengar",    "hp": 115, "max_hp": 165, "attack": 30, "defense": 20, "level": 14, "element": "fire",  "win_count": 0, "sprite_path": "menu_sprites/menusprite5.png" },
+  { "name": "Dragonite", "hp": 180, "max_hp": 250, "attack": 45, "defense": 35, "level": 20, "element": "water", "win_count": 0, "sprite_path": "menu_sprites/menusprite6.png" }
+])
       
         self.enemy_mon_copy = self.enemy_mon.copy()
         self.player_mon_sprite = Sprite(self.player_mon["sprite_path"], (150,150))

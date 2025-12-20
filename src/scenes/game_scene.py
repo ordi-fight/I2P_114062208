@@ -200,7 +200,7 @@ class GameScene(Scene):
         # the next frame the condition will be false and the player stop
         if self.game_manager.check_pokemonball_collision(self.game_manager.player.animation.rect) and input_manager.key_pressed(pg.K_SPACE):
             # print("hello")
-            self.pokemonball_path = [(random.randint(41,61)* GameSettings.TILE_SIZE ,random.randint(1,36)* GameSettings.TILE_SIZE) for _ in range(20)]
+            self.pokemonball_path = [(random.randint(41,61)* GameSettings.TILE_SIZE ,random.randint(1,36)* GameSettings.TILE_SIZE) for _ in range(40)]
             # print(self.pokemonball_path)
         if self.pokemonball_path :
             if self.move_P_index < len(self.pokemonball_path):
@@ -328,7 +328,7 @@ class GameScene(Scene):
         else:
             camera = PositionCamera(0, 0)
             self.game_manager.current_map.draw(screen, camera)
-   
+        
         self.draw_minimap(screen)
 
         for enemy in self.game_manager.current_enemy_trainers:
@@ -397,7 +397,7 @@ class GameScene(Scene):
             screen.blit(self.pokemonball_sprite.image, draw_rect)
         x = 900
         y = 100
-        if self.is_catch:
+        if self.is_catch and self.game_manager.current_map.path_name == "beach_map.tmx":
 
             if not self.monster_catch:
                 return
@@ -450,6 +450,7 @@ class GameScene(Scene):
                 screen.blit(hp_text, (x + 110, y + 60))
 
                 y += spacing
+                
         if self.game_manager.current_map.path_name == "beach_map.tmx":
             self.speedup_button.hitbox.top = y
             self.speedup_button.hitbox.left = x
@@ -562,19 +563,13 @@ class GameScene(Scene):
     def evolve(self):
 
         evolution_info = {
-            "Pikachu":
-        { "name": "evolved Pikachu",   "hp": 100,  "max_hp": 150,"attack":20,"defense":20 ,"level": 25,"element": "grass","win_count" : 0, "sprite_path": "sprites/sprite1_evolved.png" },
-        "Charizard":
-        { "name": "evolved Charizard", "hp": 150, "max_hp": 200, "attack":50,"defense":50,"level": 36,"element": "grass", "win_count" : 0,"sprite_path": "sprites/sprite2_evolved.png" },
-        "Blastoise":
-        { "name": "evolved Blastoise", "hp": 160, "max_hp": 180, "attack":60,"defense":60,"level": 32,"element": "water", "win_count" : 0,"sprite_path": "sprites/sprite3_evolved.png" },
-        "Venusaur" :
-        { "name": "evolved Venusaur",  "hp": 150,  "max_hp": 160, "attack":20,"defense":20,"level": 30,"element": "fire", "win_count" : 0,"sprite_path": "sprites/sprite4_evolved.png" },
-        "Gengar":
-        { "name": "evolved Gengar",    "hp": 130, "max_hp": 140, "attack":30,"defense":30,"level": 28,"element": "fire", "win_count" : 0,"sprite_path": "sprites/sprite5_evolved.png" },
-        "Dragonite":
-        { "name": "evolved Dragonite", "hp": 200, "max_hp": 220, "attack":80,"defense":80,"level": 40, "element": "water","win_count" : 0,"sprite_path": "sprites/sprite6_evolved.png" }
-            }
+  "Pikachu":   { "name": "evolved Pikachu",   "hp": 150, "max_hp": 220, "attack": 60, "defense": 35, "level": 25, "element": "grass", "win_count": 0, "sprite_path": "sprites/sprite1_evolved.png" },
+  "Charizard": { "name": "evolved Charizard", "hp": 190, "max_hp": 280, "attack": 80, "defense": 50, "level": 36, "element": "grass", "win_count": 0, "sprite_path": "sprites/sprite2_evolved.png" },
+  "Blastoise": { "name": "evolved Blastoise", "hp": 210, "max_hp": 300, "attack": 85, "defense": 60, "level": 32, "element": "water", "win_count": 0, "sprite_path": "sprites/sprite3_evolved.png" },
+  "Venusaur":  { "name": "evolved Venusaur",  "hp": 180, "max_hp": 250, "attack": 70, "defense": 45, "level": 30, "element": "fire",  "win_count": 0, "sprite_path": "sprites/sprite4_evolved.png" },
+  "Gengar":    { "name": "evolved Gengar",    "hp": 170, "max_hp": 240, "attack": 75, "defense": 45, "level": 28, "element": "fire",  "win_count": 0, "sprite_path": "sprites/sprite5_evolved.png" },
+  "Dragonite": { "name": "evolved Dragonite", "hp": 250, "max_hp": 350, "attack": 100, "defense": 80, "level": 40, "element": "water", "win_count": 0, "sprite_path": "sprites/sprite6_evolved.png" }
+}
         monster_collection = []
         for monster in self.game_manager.bag._monsters_data:
            
@@ -644,11 +639,12 @@ class GameScene(Scene):
                     item["count"] -= 5
                     self._message = "Coins - 5 speed up 200"
                     self._message_timer = 2
+                    self.game_manager.player.speed += 200
                 else:
                     self._message = "insufficient coins, more battle to earn coins"
                     self._message_timer = 2
 
-        self.game_manager.player.speed += 200
+      
     def draw_message(self, screen: pg.Surface, message: str):
 
         font = pg.font.Font("assets/fonts/Minecraft.ttf", 30)

@@ -15,8 +15,8 @@
         }
       ],
       "player": {
-        "x": 16.0,
-        "y": 32.0
+        "x": 15.0,
+        "y": 30.0
       },
       "enemy_trainers": [
         {
@@ -71,7 +71,7 @@
       ],
       "player": {
         "x": 41.0,
-        "y": 29.0
+        "y": 25.0
       },
       "enemy_trainers": [
         {
@@ -113,93 +113,30 @@
   ],
   "current_map": "map.tmx",
   "player": {
-    "x": 13.0,
-    "y": 30.0
+    "x": 27.0,
+    "y": 31.0
   },
   "bag": {
     "monsters": [
-      {
-        "name": "Pikachu",
-        "hp": 85,
-        "max_hp": 100,
-        "attack": 10,
-        "defense": 10,
-        "level": 12,
-        "element": "grass",
-        "win_count": 0,
-        "sprite_path": "menu_sprites/menusprite1.png"
-      },
-      {
-        "name": "Pikachu",
-        "hp": 85,
-        "max_hp": 100,
-        "attack": 10,
-        "defense": 10,
-        "level": 12,
-        "element": "grass",
-        "win_count": 0,
-        "sprite_path": "menu_sprites/menusprite1.png"
-      },
-      {
-        "name": "Venusaur",
-        "hp": 90,
-        "max_hp": 160,
-        "attack": 10,
-        "defense": 10,
-        "level": 15,
-        "element": "fire",
-        "win_count": 0,
-        "sprite_path": "menu_sprites/menusprite4.png"
-      },
-      {
-        "name": "Gengar",
-        "hp": 110,
-        "max_hp": 140,
-        "attack": 15,
-        "defense": 15,
-        "level": 14,
-        "element": "fire",
-        "win_count": 0,
-        "sprite_path": "menu_sprites/menusprite5.png"
-      },
-      {
-        "name": "Pikachu",
-        "hp": 85,
-        "max_hp": 100,
-        "attack": 10,
-        "defense": 10,
-        "level": 12,
-        "element": "grass",
-        "win_count": 0,
-        "sprite_path": "menu_sprites/menusprite1.png"
-      },
-      {
-        "name": "Venusaur",
-        "hp": 90,
-        "max_hp": 160,
-        "attack": 10,
-        "defense": 10,
-        "level": 15,
-        "element": "fire",
-        "win_count": 0,
-        "sprite_path": "menu_sprites/menusprite4.png"
-      }
-    ],
+  { "name": "Pikachu",   "hp": 90,  "max_hp": 130, "attack": 25, "defense": 15, "level": 12, "element": "grass", "win_count": 0, "sprite_path": "menu_sprites/menusprite1.png" },
+  { "name": "Gengar",    "hp": 115, "max_hp": 165, "attack": 30, "defense": 20, "level": 14, "element": "fire",  "win_count": 0, "sprite_path": "menu_sprites/menusprite5.png" },
+  { "name": "Dragonite", "hp": 180, "max_hp": 250, "attack": 45, "defense": 35, "level": 20, "element": "water", "win_count": 0, "sprite_path": "menu_sprites/menusprite6.png" }
+],
     "items": [
       {
         "name": "Potion",
-        "count": 83,
+        "count": 87,
         "tag": 3,
         "sprite_path": "ingame_ui/potion.png"
       },
       {
         "name": "Coins",
-        "count": 3,
+        "count": 22,
         "sprite_path": "ingame_ui/coin.png"
       },
       {
         "name": "Pokeball",
-        "count": 1,
+        "count": 2,
         "tag": 3,
         "sprite_path": "ingame_ui/ball.png"
       },

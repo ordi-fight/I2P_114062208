@@ -12,6 +12,7 @@ from src.sprites import Sprite,BackgroundSprite
 from typing import override
 from src.data.bag import Bag
 from src.sprites import Animation
+import math 
 
 
 class BattleScene(Scene):
@@ -64,7 +65,7 @@ class BattleScene(Scene):
         self.panel_img = pg.image.load("assets/images/UI/raw/UI_Flat_Frame03a.png").convert_alpha()
         self.panel_img = pg.transform.scale(self.panel_img, (800, 500))
         self.panel_rect = self.panel_img.get_rect()
-        
+     
         
     @override    
     def enter(self):
@@ -87,13 +88,13 @@ class BattleScene(Scene):
 
         # --- Enemy monster (simple fixed monster) ---
         self.enemy_mon = random.choice([
-      { "name": "dangerous dolpin",   "hp": 85,  "max_hp": 100,"attack":15,"defense":8.0,"level": 12,"element":"water" ,"sprite_path": "sprites/sprite14_attack.png" },
-      { "name": "fire dragon", "hp": 150, "max_hp": 200, "attack":30.0,"defense":20.0,"level": 18,"element":"fire", "sprite_path": "sprites/sprite9_attack.png" },
-      { "name": "little seed", "hp": 120, "max_hp": 180, "attack":35.0,"defense":25.0,"level": 16, "element":"grass","sprite_path": "sprites/sprite16_attack.png" },
-      { "name": "Venusaur",  "hp": 90,  "max_hp": 160, "attack":15.0,"defense":5.0,"level": 15, "element":"grass","sprite_path": "sprites/sprite4_attack.png" },
-      { "name": "Gengar",    "hp": 110, "max_hp": 140, "attack":20.0,"defense":10.0,"level": 14, "element":"fire","sprite_path": "sprites/sprite5_attack.png" },
-      { "name": "Dragonite", "hp": 180, "max_hp": 220, "attack":45.0,"defense":38.0,"level": 20, "element":"water","sprite_path": "sprites/sprite6_attack.png" }
-    ])
+  { "name": "dangerous dolphin", "hp": 90,  "max_hp": 140, "attack": 20, "defense": 10, "level": 12, "element": "water", "sprite_path": "sprites/sprite14_attack.png" },
+  { "name": "Gengar",           "hp": 110, "max_hp": 160, "attack": 25, "defense": 15, "level": 14, "element": "fire",  "sprite_path": "sprites/sprite5_attack.png" },
+  { "name": "Venusaur",         "hp": 130, "max_hp": 180, "attack": 30, "defense": 20, "level": 15, "element": "grass", "sprite_path": "sprites/sprite4_attack.png" },
+  { "name": "little seed",      "hp": 150, "max_hp": 210, "attack": 35, "defense": 25, "level": 16, "element": "grass", "sprite_path": "sprites/sprite16_attack.png" },
+  { "name": "fire dragon",      "hp": 180, "max_hp": 240, "attack": 45, "defense": 35, "level": 18, "element": "fire",  "sprite_path": "sprites/sprite9_attack.png" },
+  { "name": "Dragonite",        "hp": 220, "max_hp": 280, "attack": 55, "defense": 45, "level": 20, "element": "water", "sprite_path": "sprites/sprite6_attack.png" }
+])
    
        
         
@@ -114,6 +115,10 @@ class BattleScene(Scene):
         self.enemy_mon_ani = Animation(self.enemy_mon["sprite_path"], ["attack"], 4,(250,250))
         self._message = ""
         self._message_timer = 0
+        self.attack_timer = 0
+        self.attack_monster = ""
+        self.attack_animation = ""
+        self.node = []
     def _create_item_buttons(self, items):
         buttons = []
         for index, item in enumerate(items):
@@ -155,6 +160,7 @@ class BattleScene(Scene):
         self.check_element(attack)
         attacked["hp"] = max(0, min(attacked["hp"],attacked["hp"] - (attack["attack"]+self.damage) + attacked["defense"]))
         self.damage = 0
+        self.attack_monster = self.attack(attack)
     def is_alive(self,monster):
         return monster["hp"] > 0
     def end_battle(self,victor):
@@ -165,10 +171,17 @@ class BattleScene(Scene):
 
     @override
     def update(self, dt: float):
-        
+        if self.attack_animation :
+            if self.attack_timer > 0:
+                self.attack_timer -= dt
+            elif self.attack_timer <= 0:
+                self.attack_animation =""
+                self.attack_monster = ""
         self.tool_button.update(dt)
         self.button_x.update(dt)
         self.enemy_mon_ani.update(dt)
+        if self.attack_animation:
+            self.attack_animation.update(dt)
         if self._message_timer > 0:
             self._message_timer -= dt
         if self._message_timer <= 0:
@@ -357,7 +370,7 @@ class BattleScene(Scene):
             elif self._message_timer <= 0 and "wins" not in self._message:
                 # 回合提示訊息 (self._message_timer 已經清空，但 self._message 剛被 update 設為回合提示)
                 self.draw_message(screen, self._message)
-       
+        
 
         pg.draw.rect(screen, (80, 80, 80), (150, GameSettings.SCREEN_HEIGHT - 150, self.player_mon["max_hp"] , 10))
         pg.draw.rect(screen, (0, 200, 0), (150, GameSettings.SCREEN_HEIGHT - 150, self.player_mon["max_hp"] * self.player_mon_hp_ratio ,10))
@@ -514,6 +527,45 @@ class BattleScene(Scene):
                     screen.blit(hp_text, (x + 110, y + 60))
 
                     y += spacing
+                fire = Sprite(element_path_dict["fire"],(40,40))
+                fire.rect.x = 800
+                fire.rect.y = 300
+                fire.draw(screen)
+                grass = Sprite(element_path_dict["grass"],(40,40))
+                grass.rect.x = 900
+                grass.rect.y = 400
+                grass.draw(screen)
+                water = Sprite(element_path_dict["water"],(40,40))
+                water.rect.x = 700
+                water.rect.y = 400
+                water.draw(screen)
+                
+                for i in range(3):
+                    angle = math.radians(i * 120 - 90) # -90度是為了讓第一個點朝上
+                    x = 820 + 50 * math.cos(angle)
+                    y = 400 + 50 * math.sin(angle)
+                    self.node.append((x, y))
+
+                # 2. 依序繪製三條邊上的箭頭
+                for i in range(3):
+                    start = self.node[i]
+                    end = self.node[(i + 1) % 3] # 下一個頂點
+                    
+                    # 畫主幹
+                    pg.draw.line(screen, (0,0,0), start, end,3)
+                    
+                    # 計算箭頭頭部的角度
+                    angle = math.atan2(end[1] - start[1], end[0] - start[0])
+                    head_size = 15
+                    
+                    # 箭頭頭部的兩個側點
+                    p1 = (end[0] - head_size * math.cos(angle - math.pi/6),
+                        end[1] - head_size * math.sin(angle - math.pi/6))
+                    p2 = (end[0] - head_size * math.cos(angle + math.pi/6),
+                        end[1] - head_size * math.sin(angle + math.pi/6))
+                    
+                    # 畫箭頭尖端
+                    pg.draw.polygon(screen, (0,0,0), [end, p1, p2])
         if not  self.is_overlay :
             self.tool_button.hitbox.centerx = screen.get_rect().centerx
             self.tool_button.hitbox.bottom = GameSettings.SCREEN_HEIGHT -150
@@ -523,7 +575,15 @@ class BattleScene(Scene):
             tool_text_rect = tool_text.get_rect()     
             tool_text_rect.center = self.tool_button.hitbox.center
             screen.blit(tool_text, tool_text_rect)
-       
+        if self.attack_animation and self.attack_monster:
+            if self.attack_monster == self.player_mon:
+                self.attack_animation.rect.x = 300
+                self.attack_animation.rect.y = 200
+                self.attack_animation.draw(screen)
+            elif self.attack_monster == self.enemy_mon:
+                self.attack_animation.rect.x = 700
+                self.attack_animation.rect.y = 100
+                self.attack_animation.draw(screen)
     def draw_message(self, screen: pg.Surface, message: str):
 
         font = pg.font.SysFont(None, 40)
@@ -615,7 +675,22 @@ class BattleScene(Scene):
              if element_dict[self.enemy_mon["element"]] == self.player_mon["element"]:
                 
                 return self.enemy_mon
-            
+    def attack(self,monster):
+        
+        if monster["element"] == "fire" and "evolved" not in monster["name"]:
+            self.attack_animation = Animation("attack/attack5.png",["attack"],4,(400,400))
+        elif monster["element"] == "grass"and "evolved" not in monster["name"]:
+            self.attack_animation = Animation("attack/attack6.png",["attack"],4,(400,400))
+        elif monster["element"] == "water"and "evolved" not in monster["name"]:
+            self.attack_animation = Animation("attack/attack3.png",["attack"],4,(400,400))
+        elif monster["element"] == "fire" and "evolved" in monster["name"]:
+            self.attack_animation = Animation("attack/attack4.png",["attack"],4,(400,400))
+        elif monster["element"] == "water"and "evolved" in monster["name"]:
+            self.attack_animation = Animation("attack/attack1.png",["attack"],4,(400,400))
+        elif monster["element"] == "grass"and "evolved" in monster["name"]:
+            self.attack_animation = Animation("attack/attack6.png",["attack"],4,(400,400))
+        self.attack_timer = 2
+        return monster
        
 
             
