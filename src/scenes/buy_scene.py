@@ -393,8 +393,8 @@ class BuyScene(Scene):
         self.draw_items(screen)
 
 
-        services.scene_manager.write(30,"sell",screen, (0,0,0) ,(320,150))
-        services.scene_manager.write(30,"buy",screen, (0,0,0) ,(420,150))
+        services.scene_manager.write(30,"sell",screen, (0,0,0) ,(420,150))
+        services.scene_manager.write(30,"buy",screen, (0,0,0) ,(320,150))
         services.scene_manager.write(30,"switch",screen, (0,0,0) ,(520,150))
     def shop(self,item_name):
         for item in services.scene_manager._scenes["game"].game_manager.bag._items_data:
@@ -439,6 +439,8 @@ class BuyScene(Scene):
         if self.ex_monster and self._monster :
             self.monsters.remove(self._monster)
             self.monsters.append(self.ex_monster)
+            self.npc_monster_list.remove(self.ex_monster)
+            self.npc_monster_list.append(self._monster)
             services.scene_manager._scenes["game"].game_manager .save("saves/game0.json")
         self.temp = True
         self.ex_monster = {}

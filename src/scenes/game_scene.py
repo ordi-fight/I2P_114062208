@@ -6,13 +6,14 @@ import random
 
 from src.scenes.scene import Scene
 from src.core import GameManager, OnlineManager
-from src.interface.components import Button
+from src.interface.components import Button,ChatOverlay
 from src.utils import Logger, PositionCamera, GameSettings, Position
 from src.core.services import scene_manager, sound_manager, input_manager
 from src.sprites import Animation
 from src.sprites import Sprite,BackgroundSprite
 from typing import override
 from src.scenes.pathfinding_service import PathfindingService, TileCoord
+from typing import override, Dict, Tuple
 
 
 
@@ -34,12 +35,23 @@ class GameScene(Scene):
         # Online Manager
         if GameSettings.IS_ONLINE:
             self.online_manager = OnlineManager()
+            # self.chat_overlay = ChatOverlay(
+            #     send_callback=..., <- send chat method
+            #     get_messages=..., <- get chat messages method
+            # )
+            self._chat_overlay = ChatOverlay(
+                send_callback= self.online_manager.send_chat,
+                get_messages= self.online_manager.get_recent_chat
+            )
         else:
             self.online_manager = None
         self.sprite_online = Animation(
             "character/ow1.png", ["down", "left", "right", "up"], 4,
             (GameSettings.TILE_SIZE, GameSettings.TILE_SIZE)
         )
+        self._chat_bubbles: Dict[int, Tuple[str, str]] = {}
+        self._online_last_pos: Dict[int, Position] = {}
+        self._last_chat_id_seen = 0
         
         #TODO add a button to game secne on left top page
         self.setting_button = Button(
@@ -94,6 +106,7 @@ class GameScene(Scene):
         self.barrar_posi = (0,0)
         self._message = ""
         self._message_timer = 0
+        self.font = pg.font.Font("assets/fonts/Minecraft.ttf", 20)
     @override
     def enter(self) -> None:
         sound_manager.play_bgm("RBY 103 Pallet Town.ogg")
@@ -239,6 +252,38 @@ class GameScene(Scene):
             else:
                 self.pokemonball_path = []
                 self.move_P_index = 0
+        
+
+        if self._chat_overlay:
+            if input_manager.key_pressed(pg.K_RETURN):
+                self._chat_overlay.open()
+            self._chat_overlay.update(dt)
+      
+        if self.online_manager:
+            list_online = self.online_manager.get_list_players() #
+            for player_data in list_online:
+                pid = player_data["id"] #
+                print(f"pidpidpid------------")
+                # 存入字典，Key 是 ID，Value 是 Position 物件
+                self._online_last_pos[pid] = Position(player_data["x"], player_data["y"])
+            try:
+                msgs = self.online_manager.get_recent_chat(50)
+                max_id = self._last_chat_id_seen
+                now = time.monotonic()
+                for m in msgs:
+                    mid = int(m.get("id", 0))
+                    if mid <= self._last_chat_id_seen:
+                        continue
+                    sender = int(m.get("from", -1))
+                    text = str(m.get("text", ""))
+                    if sender >= 0 and text:
+                        self._chat_bubbles[sender] = (text, now + 5.0)
+                    if mid > max_id:
+                        max_id = mid
+                self._last_chat_id_seen = max_id
+            except Exception:
+                pass
+        
     
 
     def go_to_gym(self):
@@ -337,6 +382,8 @@ class GameScene(Scene):
             npc.draw(screen, camera)
 
         self.game_manager.bag.draw(screen)
+        if self._chat_overlay:
+            self._chat_overlay.draw(screen)
         
         if self.online_manager and self.game_manager.player:
             list_online = self.online_manager.get_list_players()
@@ -350,6 +397,9 @@ class GameScene(Scene):
                     self.sprite_online.update_pos(pos)
                     self.sprite_online.switch(direction)
                     self.sprite_online.draw(screen)
+            
+            self._draw_chat_bubbles(screen,camera)
+         
         if self._message :
            
             self.draw_message(screen, self._message)
@@ -656,6 +706,110 @@ class GameScene(Scene):
         message_page_rect.left = 230
 
         screen.blit(message_page, message_page_rect)
+    def _draw_chat_bubbles(self, screen: pg.Surface, camera: PositionCamera) -> None:
+        print(f"Current Bubbles: {self._chat_bubbles}")
+        if not self.online_manager:
+            return
+        # REMOVE EXPIRED BUBBLES
+        now = time.monotonic()
+        expired = [pid for pid, (_, ts) in self._chat_bubbles.items() if ts <= now]
+        for pid in expired:
+            self._chat_bubbles.pop(pid, None)
+        if not self._chat_bubbles:
+            return
+
+        # DRAW LOCAL PLAYER'S BUBBLE
+        local_pid = self.online_manager.player_id
+        if self.game_manager.player and local_pid in self._chat_bubbles:
+            text, _ = self._chat_bubbles[local_pid]
+            self._draw_chat_bubble_for_pos(screen, camera, self.game_manager.player.position, text,self.font)
+
+       
+        for pid, (text, _) in self._chat_bubbles.items():
+            if pid == local_pid:
+                continue
+            pos_xy = self._online_last_pos.get(pid)
+            if not pos_xy:
+                continue
+            self._draw_chat_bubble_for_pos(screen, camera, pos_xy, text, self.font)
+
+        
+        """
+        DRAWING CHAT BUBBLES:
+        - When a player sends a chat message, the message should briefly appear above
+        that player's character in the world, similar to speech bubbles in RPGs.
+        - Each bubble should last only a few seconds before fading or disappearing.
+        - Only players currently visible on the map should show bubbles.
+
+         What you need to think about:
+            ------------------------------
+            1. **Which players currently have messages?**
+            You will have a small structure mapping player IDs to the text they sent
+            and the time the bubble should disappear.
+
+            2. **How do you know where to place the bubble?**
+            The bubble belongs above the player's *current position in the world*.
+            The game already tracks each player’s world-space location.
+            Convert that into screen-space and draw the bubble there.
+
+            3. **How should bubbles look?**
+            You decide. The visual style is up to you:
+            - A rounded rectangle, or a simple box.
+            - Optional border.
+            - A small triangle pointing toward the character's head.
+            - Enough padding around the text so it looks readable.
+
+            4. **How do bubbles disappear?**
+            Compare the current time to the stored expiration timestamp.
+            Remove any bubbles that have expired.
+
+            5. **In what order should bubbles be drawn?**
+            Draw them *after* world objects but *before* UI overlays.
+
+        Reminder:
+        - For the local player, you can use the self.game_manager.player.position to get the player's position
+        - For other players, maybe you can find some way to store other player's last position?
+        - For each player with a message, maybe you can call a helper to actually draw a single bubble?
+        """
+
+    def _draw_chat_bubble_for_pos(self, screen: pg.Surface, camera: PositionCamera, world_pos: Position, text: str, font: pg.font.Font):
+        local_pos = camera.transform_position_as_position(world_pos)
+        # 2. 渲染文字
+        txt_surf = font.render(text, True, (0, 0, 0))
+        test_surf = font.render("DEBUG: " + text, True, (255, 0, 0))
+        screen.blit(test_surf, (50, 50))
+        # 3. 建立 Rect 並設定位置 (放在角色頭部上方)
+        # 使用 midbottom 快速對齊，讓氣泡底部中心對準角色頭部
+        bubble_x = local_pos.x + GameSettings.TILE_SIZE // 2
+        bubble_y = local_pos.y - (GameSettings.TILE_SIZE * 0.8)
+        bubble_rect = txt_surf.get_rect(midbottom=(bubble_x, bubble_y))
+        
+        # 4. 增加內邊距 (Padding)
+        # inflate_ip 會從中心點向外擴大指定的像素
+        padding = 8
+        bubble_rect.inflate_ip(padding * 2, padding * 2)
+        
+        # 5. 繪製氣泡背景 (白色圓角)
+        pg.draw.rect(screen, (255, 255, 255), bubble_rect, border_radius=5)
+        
+        # 6. 繪製氣泡邊框 (黑色，線寬 1)
+        pg.draw.rect(screen, (0, 0, 0), bubble_rect, width=1, border_radius=5)
+        
+        # 7. 將文字貼在氣泡內 (需要加上 padding 偏移)
+        screen.blit(txt_surf, (bubble_rect.x + padding, bubble_rect.y + padding))
+
+        """
+        Steps:
+            ------------------
+            1. Convert a player’s world position into a location on the screen.
+            (Use the camera system provided by the game engine.)
+
+            2. Decide where "above the player" is.
+            Typically a little above the sprite’s head.
+
+            3. Measure the rendered text to determine bubble size.
+            Add padding around the text.
+        """
             
 
 

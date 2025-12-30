@@ -173,7 +173,7 @@ async def handle_client(websocket: Any):
                     "message": str(e)
                 }))
                 
-    except Exception:
+    except Exception as e:
         print(f"[Server] Client handler error: {e}")
     finally:
         # Unregister player on disconnect

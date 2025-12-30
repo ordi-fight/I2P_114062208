@@ -15,7 +15,7 @@
         }
       ],
       "player": {
-        "x": 16.0,
+        "x": 13.0,
         "y": 30.0
       },
       "enemy_trainers": [
@@ -75,8 +75,8 @@
         }
       ],
       "player": {
-        "x": 42.0,
-        "y": 29.0
+        "x": 40.0,
+        "y": 30.0
       },
       "enemy_trainers": [
         {
@@ -118,78 +118,90 @@
   ],
   "current_map": "map.tmx",
   "player": {
-    "x": 23.500000000000156,
-    "y": 30.0
+    "x": 13.0,
+    "y": 30.262500000000017
   },
   "bag": {
     "monsters": [
       {
-        "name": "Pikachu",
-        "hp": 90,
-        "max_hp": 130,
-        "attack": 25,
-        "defense": 15,
-        "level": 12,
-        "element": "grass",
-        "win_count": 0,
-        "sprite_path": "menu_sprites/menusprite1.png"
-      },
-      {
-        "name": "Venusaur",
-        "hp": 100,
-        "max_hp": 170,
-        "attack": 28,
-        "defense": 18,
-        "level": 15,
-        "element": "grass",
-        "win_count": 0,
-        "sprite_path": "menu_sprites/menusprite4.png"
-      },
-      {
-        "name": "Dragonite",
-        "hp": 180,
-        "max_hp": 250,
-        "attack": 45,
+        "name": "evolved Pikachu",
+        "hp": 150,
+        "max_hp": 220,
+        "attack": 60,
         "defense": 35,
-        "level": 20,
+        "level": 25,
+        "element": "grass",
+        "win_count": 0,
+        "sprite_path": "sprites/sprite1_evolved.png",
+        "hp/ratio": 0.43846153846153846
+      },
+      {
+        "name": "evolved Pikachu",
+        "hp": 150,
+        "max_hp": 220,
+        "attack": 60,
+        "defense": 35,
+        "level": 25,
+        "element": "grass",
+        "win_count": 0,
+        "sprite_path": "sprites/sprite1_evolved.png"
+      },
+      {
+        "name": "evolved Charizard",
+        "hp": 150,
+        "max_hp": 200,
+        "attack": 50,
+        "defense": 50,
+        "level": 36,
+        "element": "grass",
+        "win_count": 0,
+        "sprite_path": "sprites/sprite2_evolved.png"
+      },
+      {
+        "name": "Blastoise",
+        "hp": 120,
+        "max_hp": 180,
+        "attack": 30,
+        "defense": 30,
+        "level": 16,
         "element": "water",
         "win_count": 0,
-        "sprite_path": "menu_sprites/menusprite6.png"
+        "sprite_path": "menu_sprites/menusprite3.png"
       }
     ],
     "items": [
       {
         "name": "Potion",
-        "count": 30,
+        "count": 32,
         "tag": 3,
         "sprite_path": "ingame_ui/potion.png"
       },
       {
         "name": "Coins",
-        "count": 50,
+        "count": 36,
         "sprite_path": "ingame_ui/coin.png"
       },
       {
         "name": "Pokeball",
-        "count": 50,
+        "count": 53,
         "tag": 3,
         "sprite_path": "ingame_ui/ball.png"
       },
       {
         "name": "defence_buff",
-        "count": 10,
+        "count": 8,
         "tag": 3,
         "sprite_path": "ingame_ui/options2.png"
       },
       {
         "name": "attack_buff",
-        "count": 10,
+        "count": 8,
         "tag": 5,
         "sprite_path": "ingame_ui/options8.png"
       },
       {
         "name": "heal_buff",
-        "count": 10,
+        "count": 5,
         "tag": 6,
         "sprite_path": "ingame_ui/options5.png"
       }
